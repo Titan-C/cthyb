@@ -27,6 +27,7 @@ template <> struct py_converter<solve_parameters_t> {
   PyDict_SetItemString( d, "measure_pert_order" , convert_to_python(x.measure_pert_order));
   PyDict_SetItemString( d, "make_histograms"    , convert_to_python(x.make_histograms));
   PyDict_SetItemString( d, "proposal_prob"      , convert_to_python(x.proposal_prob));
+  PyDict_SetItemString( d, "static_observables" , convert_to_python(x.static_observables));
   return d;
  }
 
@@ -56,6 +57,7 @@ template <> struct py_converter<solve_parameters_t> {
   _get_optional(dic, "measure_pert_order" , res.measure_pert_order   , false);
   _get_optional(dic, "make_histograms"    , res.make_histograms      , false);
   _get_optional(dic, "proposal_prob"      , res.proposal_prob        , (std::map<std::string,double>{}));
+  _get_optional(dic, "static_observables" , res.static_observables   , std::map<std::string,real_operator_t>{});
   return res;
  }
 
@@ -82,11 +84,12 @@ template <> struct py_converter<solve_parameters_t> {
   if (!PyDict_Check(dic)) { 
    if (raise_exception) { PyErr_SetString(PyExc_TypeError, "Not a python dict");}
    return false;
-  }  
+  }
   std::stringstream fs, fs2; int err=0;
 
 #ifndef TRIQS_ALLOW_UNUSED_PARAMETERS
   std::vector<std::string> ks, all_keys = {"h_loc","n_cycles","partition_method","quantum_numbers","length_cycle","n_warmup_cycles","random_seed","random_name","max_time","verbosity","move_shift","use_trace_estimator","measure_g_tau","measure_g_l","measure_pert_order","make_histograms","proposal_prob"};
+  std::vector<std::string> ks, all_keys = {"h_loc","n_cycles","partition_method","quantum_numbers","length_cycle","n_warmup_cycles","random_seed","random_name","max_time","verbosity","move_shift","use_trace_estimator","measure_g_tau","measure_g_l","measure_pert_order","make_histograms","static_observables"};
   pyref keys = PyDict_Keys(dic);
   if (!convertible_from_python<std::vector<std::string>>(keys, true)) {
    fs << "\nThe dict keys are not strings";
@@ -115,6 +118,7 @@ template <> struct py_converter<solve_parameters_t> {
   _check_optional <bool                         >(dic, fs, err, "measure_pert_order" , "bool");
   _check_optional <bool                         >(dic, fs, err, "make_histograms"    , "bool");
   _check_optional <std::map<std::string, double>>(dic, fs, err, "proposal_prob"      , "std::map<std::string, double>");
+  _check_optional <std::map<std::string, real_operator_t>>(dic, fs, err, "static_observables" , "std::map<std::string, real_operator_t>");
   if (err) goto _error;
   return true;
   

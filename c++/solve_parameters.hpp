@@ -57,6 +57,9 @@ struct solve_parameters_t {
 
  /// Operator insertion/removal probabilities for different blocks
  std::map<std::string,double> proposal_prob = (std::map<std::string,double>{});
+ 
+ /// List of static observables to be measured (with their names)
+ std::map<std::string,real_operator_t> static_observables = std::map<std::string,real_operator_t>{};
 
  solve_parameters_t() {}
  

@@ -53,7 +53,8 @@ c.add_method("""void solve (**cthyb::solve_parameters_t)""",
   measure_g_l         bool                          false                                          Measure G_l (Legendre)?
   measure_pert_order  bool                          false                                          Measure perturbation order?
   make_histograms     bool                          false                                          Make histograms of the trace computation?
-  proposal_prob       std::map<std::string, double> (std::map<std::string,double>{})               Operator insertion/removal probabilities for different blocks """)
+  proposal_prob       std::map<std::string, double> (std::map<std::string,double>{})               Operator insertion/removal probabilities for different blocks 
+  static_observables  std::map<std::string, real_operator_t> std::map<std::string,real_operator_t>{}        List of static observables to be measured (with their names) """)
 
 c.add_property(name = "last_solve_parameters",
                getter = cfunction("cthyb::solve_parameters_t get_last_solve_parameters ()"),
