@@ -37,10 +37,12 @@ class solver_core {
 
  double beta;
  sorted_spaces sosp;
+
  std::map<std::string, indices_type> gf_struct;
  block_gf<imfreq> _G0_iw;                   // Green's function containers: imaginary-freq Green's functions
  block_gf<imtime> _Delta_tau, _G_tau;       // Green's function containers: imaginary-time Green's functions
  block_gf<legendre> _G_l;                   // Green's function containers: Legendre coefficients
+ std::map<std::string,double> _static_observables;   // Measured time-independent observables
  boost::mpi::communicator _comm;            // define the communicator, here MPI_COMM_WORLD
  solve_parameters_t _last_solve_parameters; // parameters of the last call to solve
  mc_sign_type _average_sign;
@@ -67,6 +69,10 @@ class solver_core {
  
  /// G_l in Legendre polynomials representation
  block_gf_view<legendre> G_l() { return _G_l; }
+
+ // Static observables
+ /// Accumulated static observable with a given name
+ std::map<std::string,double> const& static_observables() const { return _static_observables; }
 
  /// Atomic G(tau) in imaginary time
  block_gf_view<imtime> atomic_gf() const { return sosp.atomic_gf(beta,gf_struct,_G_tau[0].mesh().size()); }
