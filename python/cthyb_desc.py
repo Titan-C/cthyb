@@ -73,6 +73,10 @@ c.add_property(name = "G_l",
                getter = cfunction("block_gf_view<legendre> G_l ()"),
                doc = """G_l in Legendre polynomials representation """)
 
+c.add_property(name = "static_observables",
+               getter = cfunction("std::map<std::string,double> static_observables ()"),
+               doc = """Accumulated static observable with a given name """)
+
 c.add_property(name = "atomic_gf", 
                getter = cfunction("block_gf_view<imtime> atomic_gf ()"),
                doc = """Atomic G(tau) in imaginary time """)
