@@ -29,6 +29,7 @@ p["random_seed"] = 123 * mpi.rank + 567
 p["length_cycle"] = 50
 p["n_warmup_cycles"] = 50000
 p["n_cycles"] = 5000000
+p["make_histograms"] = True
 
 def results_file_name(use_blocks,use_qn):
     name = "anderson."

@@ -26,6 +26,9 @@ if use_qn:
     p["quantum_numbers"] = QN
     p["partition_method"] = "quantum_numbers"
 
+p["quantum_numbers"] = QN
+p["static_observables"] = {'Nup' : n(*mkind("up")), 'Ndn' : n(*mkind("dn"))}
+
 gf_struct = {}
 for spin in spin_names:
     bn, i = mkind(spin)
@@ -49,6 +52,9 @@ print_master("Running the simulation...")
 
 # Solve the problem
 S.solve(h_loc=H, **p)
+
+print "Nup:", S.static_observables["Nup"]
+print "Ndn:", S.static_observables["Ndn"]
 
 # Save the results  
 if mpi.rank==0:
