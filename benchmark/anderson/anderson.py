@@ -2,7 +2,11 @@
 
 import pytriqs.utility.mpi as mpi
 from pytriqs.archive import HDFArchive
+<<<<<<< HEAD
 from pytriqs.operators import *
+=======
+from pytriqs.operators.operators2 import *
+>>>>>>> Done with a draft version of measure_static
 from pytriqs.applications.impurity_solvers.cthyb import *
 from pytriqs.gf.local import *
 
@@ -25,6 +29,10 @@ if use_qn:
     for spin in spin_names: QN.append(n(*mkind(spin)))
     p["quantum_numbers"] = QN
     p["partition_method"] = "quantum_numbers"
+
+p["h_loc"] = H
+p["quantum_numbers"] = QN
+p["static_observables"] = {'Nup' : n(*mkind("up")), 'Ndn' : n(*mkind("dn"))}
 
 gf_struct = {}
 for spin in spin_names:
@@ -49,6 +57,9 @@ print_master("Running the simulation...")
 
 # Solve the problem
 S.solve(h_loc=H, **p)
+
+print "Nup:", S.static_observables["Nup"]
+print "Ndn:", S.static_observables["Ndn"]
 
 # Save the results  
 if mpi.rank==0:
