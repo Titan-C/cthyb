@@ -99,13 +99,7 @@ sorted_spaces::sorted_spaces(many_body_op_t const& h_, std::vector<many_body_op_
 //-----------------------------
 
 sorted_spaces::sorted_spaces(many_body_op_t const& h_, fundamental_operator_set const& fops)
-<<<<<<< HEAD
-   : creation_connection(fops.size()), annihilation_connection(fops.size()), fops(fops) {
-=======
    : creation_connection(fops.size()), annihilation_connection(fops.size()), fops(fops), full_hs(fops) {
-// FIXME ONLY FOR MASTER NODE!
- std::cout << "Using autopartition algorithm to partition the local Hilbert space" << std::endl;
->>>>>>> New method sorted_spaces::make_op_matrix()
  autopartition(fops, h_);
  complete_init(h_);
 }
