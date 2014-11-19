@@ -36,6 +36,8 @@ class move_insert_c_cdag {
  qmc_data::trace_t new_trace;
  time_pt tau1, tau2;
  op_desc op1, op2;
+ 
+ mc_weight_type saved_weight;
 
  public:
  //-----------------------------------------------
@@ -147,12 +149,17 @@ class move_insert_c_cdag {
 #endif
 
   if (!std::isfinite(p * t_ratio)) TRIQS_RUNTIME_ERROR << "p * t_ratio not finite p : " << p << " t_ratio :  "<< t_ratio;
-  return p * t_ratio;
+  saved_weight = p * t_ratio;
+  return saved_weight;
  }
 
  //----------------
 
  mc_weight_type accept() {
+
+  if(std::abs(saved_weight)<1e-3) {
+      std::cerr << "move_insert_c_cdag::accept(): small saved_weight = " << saved_weight << std::endl;
+  }
 
   // insert in the tree
   data.imp_trace.confirm_insert();

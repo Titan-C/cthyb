@@ -34,6 +34,8 @@ class move_remove_c_cdag {
  qmc_data::trace_t new_trace;
  time_pt tau1, tau2;
 
+ mc_weight_type saved_weight;
+
  public:
  
  //----------------------------------
@@ -102,12 +104,17 @@ class move_remove_c_cdag {
 
   if (!std::isfinite(p)) TRIQS_RUNTIME_ERROR << "(remove) p not finite :" << p;
   if (!std::isfinite(p / t_ratio)) TRIQS_RUNTIME_ERROR << "p / t_ratio not finite p : " << p << " t_ratio :  "<< t_ratio;
-  return p / t_ratio;
+  saved_weight = p / t_ratio;
+  return saved_weight;
  }
 
  //----------------
 
  mc_weight_type accept() {
+
+  if(std::abs(saved_weight)<1e-3) {
+      std::cerr << "move_remove_c_cdag::accept(): small saved_weight = " << saved_weight << std::endl;
+  }
 
   // remove from the tree
   data.imp_trace.confirm_delete();

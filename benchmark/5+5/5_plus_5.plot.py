@@ -45,7 +45,7 @@ for sn in spin_names:
     for nc, cn in enumerate(cubic_names):
         plt.clf()
 
-        gf = change_mesh(arch[mkind(sn,cn)[0]],200)
+        gf = change_mesh(arch['G_tau'][mkind(sn,cn)[0]],200)
 
         # Plot the results
         oplot(gf, name="cthyb")
