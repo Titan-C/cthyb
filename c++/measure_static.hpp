@@ -71,6 +71,7 @@ struct measure_static {
 
   for(auto const& M : observable_matrices){
    auto const& block_map = data.imp_trace.get_block_table()[M.first];
+   if(block_map == -1) continue; // impurity_trace is zero within this block
    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[block_map];
 
    auto prod_matrix = trace_matrix * M.second;
