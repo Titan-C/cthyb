@@ -61,6 +61,9 @@ class sorted_spaces {
  // Number of c operators
  int n_c_operators() const { return fops.size(); }
 
+ // Full Hilbert space
+ hilbert_space const& space() const { return full_hs; }
+
  // n-th subspace
  sub_hilbert_space const& subspace(int n) const { return sub_hilbert_spaces[n]; }
 

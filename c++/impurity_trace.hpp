@@ -131,6 +131,10 @@ class impurity_trace {
 
  // ---------- Accessors to cache quantities ----------
  public:
+ // is the trace empty?
+ bool is_empty() const {
+  return tree.get_root() == nullptr;
+ }
  // accessor to block_table
  std::vector<int> const & get_block_table() const {
   return tree.get_root()->cache.block_table; 
