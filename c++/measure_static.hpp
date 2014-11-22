@@ -42,10 +42,11 @@ struct measure_static {
  std::vector<std::pair<long,matrix<double>>> observable_matrices;   // pairs (subspace number,matrix elements)
  mc_sign_type z;
  int64_t num;
+ int full_hs_size;
 
  measure_static(triqs::utility::many_body_operator<double> const& observable, double & result,
                 qmc_data const& data, fundamental_operator_set const& fops) :
- result(result), data(data), z(0), num(0)
+ result(result), data(data), z(0), num(0), full_hs_size(data.sosp.space().size())
  {
   observable_matrices.reserve(data.sosp.n_subspaces());
   imperative_operator<hilbert_space> op(observable,fops);
@@ -69,15 +70,27 @@ struct measure_static {
 
   double numerator(0), denominator(0);
 
-  for(auto const& M : observable_matrices){
-   auto const& block_map = data.imp_trace.get_block_table()[M.first];
-   if(block_map == -1) continue; // impurity_trace is zero within this block
-   auto const& trace_matrix = data.imp_trace.get_trace_matrices()[block_map];
+  if(data.imp_trace.is_empty()) { // Empty trace
+   for(auto const& M : observable_matrices) {
+    for(int n = 0; n < first_dim(M.second); ++n) numerator += M.second(n,n);
+   }
+   denominator = full_hs_size;
+  } else {
+   //std::cout << "block_table:" << std::endl;
+   //for(auto const& m: data.imp_trace.get_block_table()) std::cout << m <<'\t';
+   //std::cout << std::endl;
+   //std::cout << "matrices:" << std::endl;
+   //for(auto const& m: data.imp_trace.get_trace_matrices()) std::cout << m <<'\t';
+   //std::cout << std::endl;
+   for(auto const& M : observable_matrices){
+    if(data.imp_trace.get_block_table()[M.first] == -1) continue; // impurity_trace is zero within this block
+    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[M.first];
 
-   auto prod_matrix = trace_matrix * M.second;
-   for(int n = 0; n < first_dim(trace_matrix); ++n){
-    numerator += prod_matrix(n,n);
-    denominator += trace_matrix(n,n);
+    auto prod_matrix = trace_matrix * M.second;
+    for(int n = 0; n < first_dim(trace_matrix); ++n){
+     numerator += prod_matrix(n,n);
+     denominator += trace_matrix(n,n);
+    }
    }
   }
 
