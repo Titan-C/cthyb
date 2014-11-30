@@ -223,7 +223,17 @@ std::ostream& operator<<(std::ostream& os, state<HilbertSpace, ScalarType, Based
 }
 
 template<typename TargetState, typename OriginalState>
-TargetState project(OriginalState const& psi, typename TargetState::hilbert_space_t const& proj_hs) {
+TargetState project(OriginalState const& psi, hilbert_space const& proj_hs) {
+ TargetState proj_psi(proj_hs);
+ auto const& hs = psi.get_hilbert();
+ foreach(psi,[&](int i, typename OriginalState::value_type v){
+  proj_psi(hs.get_fock_state(i)) = v;
+ });
+ return proj_psi;
+}
+
+template<typename TargetState, typename OriginalState>
+TargetState project(OriginalState const& psi, sub_hilbert_space const& proj_hs) {
  TargetState proj_psi(proj_hs);
  auto const& hs = psi.get_hilbert();
  foreach(psi,[&](int i, typename OriginalState::value_type v){
