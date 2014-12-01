@@ -180,13 +180,13 @@ void solver_core::solve(solve_parameters_t const & params) {
   auto& delta_names = _Delta_tau.domain().names();
   for (size_t block = 0; block < _Delta_tau.domain().size(); ++block) {
    int block_size = _Delta_tau[block].data().shape()[1];
-   inserts.add(move_insert_c_cdag(block, block_size, data, qmc.rng(), params.make_histograms), "Insert Delta_" + delta_names[block], 1.0);
-   removes.add(move_remove_c_cdag(block, block_size, data, qmc.rng()), "Remove Delta_" + delta_names[block], 1.0);
+   inserts.add(move_insert_c_cdag(block, block_size, data, qmc.rng(), params.make_histograms, params.weight_threshold), "Insert Delta_" + delta_names[block], 1.0);
+   removes.add(move_remove_c_cdag(block, block_size, data, qmc.rng(), params.weight_threshold), "Remove Delta_" + delta_names[block], 1.0);
   }
 
   qmc.add_move(inserts, "Insert two operators", 1.0);
   qmc.add_move(removes, "Remove two operators", 1.0);
-  if (params.move_shift) qmc.add_move(move_shift_operator(data, qmc.rng(), params.make_histograms), "Shift one operator", 1.0);
+  if (params.move_shift) qmc.add_move(move_shift_operator(data, qmc.rng(), params.make_histograms, params.weight_threshold), "Shift one operator", 1.0);
  
   // Measurements
   if (params.measure_g_tau) {

@@ -55,6 +55,9 @@ struct solve_parameters_t {
  /// Make the analysis histograms of the trace computation
  bool make_histograms = false;
 
+ /// Unconditionally reject all configurations with the weight below this threshold
+ double weight_threshold = 1e-8;
+
  /// List of static observables to be measured (with their names)
  std::map<std::string,real_operator_t> static_observables = (std::map<std::string,real_operator_t>{});
 

@@ -17,11 +17,9 @@ module.add_include("../c++/solver_core.hpp")
 module.add_preamble("""
 #include <triqs/python_tools/converters/map.hpp>
 #include <triqs/python_tools/converters/vector.hpp>
-#include <triqs/python_tools/converters/variant.hpp>
 using namespace triqs::gfs;
 using triqs::utility::many_body_operator;
 using namespace cthyb;
-using indices_type = many_body_operator<double>::indices_t;
 #include "./converters.hxx"
 """)
 
@@ -31,7 +29,7 @@ c = class_(
         c_type = "solver_core",   # name of the C++ class
 )
 
-c.add_constructor("""(double beta, std::map<std::string,indices_type> gf_struct, int n_iw = 1025, int n_tau = 10001, int n_l = 50)""",
+c.add_constructor("""(double beta, std::map<std::string,indices_type> gf_struct, int n_iw = 1025, int n_tau = 10001, int n_l = 50)""", 
                   doc = """ """)
 
 c.add_method("""void solve (**cthyb::solve_parameters_t)""", 
@@ -39,6 +37,7 @@ c.add_method("""void solve (**cthyb::solve_parameters_t)""",
 
   h_loc               real_operator_t                        --                                             Atomic Hamiltonian
   n_cycles            int                                    --                                             Number of QMC cycles
+  partition_method    std::string                            "autopartition"                                Partition method
   quantum_numbers     std::vector<real_operator_t>           std::vector<real_operator_t>{}                 Quantum numbers
   length_cycle        int                                    50                                             Length of a single QMC cycle
   n_warmup_cycles     int                                    5000                                           Number of cycles for thermalization
@@ -46,12 +45,14 @@ c.add_method("""void solve (**cthyb::solve_parameters_t)""",
   random_name         std::string                            ""                                             Name of random number generator
   max_time            int                                    -1                                             Maximum runtime in seconds, use -1 to set infinite
   verbosity           int                                    ((boost::mpi::communicator().rank()==0)?3:0)   Verbosity level
+  move_shift          bool                                   true                                           Add move_shift as a move?
   use_trace_estimator bool                                   false                                          Calculate the full trace or use an estimate?
   measure_g_tau       bool                                   true                                           Whether to measure G(tau)
   measure_g_l         bool                                   false                                          Whether to measure G_l (Legendre)
   measure_pert_order  bool                                   false                                          Whether to measure perturbation order
   make_histograms     bool                                   false                                          Make the analysis histograms of the trace computation
-  static_observables  std::map<std::string, real_operator_t> (std::map<std::string,real_operator_t>{})      List of static observables to be measured (with their names) """)
+  weight_threshold    double                                 1e-8                                           Unconditionally reject all configurations with the weight below this threshold
+  static_observables  std::map<std::string, real_operator_t> (std::map<std::string,real_operator_t>{})      List of static observables to be measured (with their names)                   """)
 
 c.add_property(name = "last_solve_parameters", 
                getter = cfunction("cthyb::solve_parameters_t get_last_solve_parameters ()"),
@@ -73,7 +74,7 @@ c.add_property(name = "G_l",
                getter = cfunction("block_gf_view<legendre> G_l ()"),
                doc = """G_l in Legendre polynomials representation """)
 
-c.add_property(name = "static_observables",
+c.add_property(name = "static_observables", 
                getter = cfunction("std::map<std::string,double> static_observables ()"),
                doc = """Accumulated static observable with a given name """)
 
