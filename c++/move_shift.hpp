@@ -38,15 +38,17 @@ class move_shift_operator {
  typedef det_manip::det_manip<qmc_data::delta_block_adaptor> det_type;
  det_type::RollDirection roll_direction;
  int block_index;
+ double weight_threshold;
 
  public:
  //-----------------------------------------------
 
- move_shift_operator(qmc_data& data, mc_tools::random_generator& rng, bool record_histograms)
+ move_shift_operator(qmc_data& data, mc_tools::random_generator& rng, bool record_histograms, double weight_threshold)
     : data(data),
       config(data.config),
       rng(rng),
-      record_histograms(record_histograms) {
+      record_histograms(record_histograms),
+      weight_threshold(weight_threshold) {
   if (record_histograms) { 
    //FIXME grid too coarse, need to update
    histos.insert({"length_proposed", {0, config.beta(), 100, "hist_length_proposed.dat"}});
@@ -219,7 +221,7 @@ class move_shift_operator {
   std::cerr << "p_yee* newtrace: " << p_yee * new_trace<< std::endl;
 #endif
 
-  return p;
+  return (std::abs(p) >= weight_threshold) ? p : 0;
  }
 
  //----------------

@@ -33,13 +33,14 @@ class move_remove_c_cdag {
  int block_index, block_size;
  qmc_data::trace_t new_trace;
  time_pt tau1, tau2;
+ double weight_threshold;
 
  public:
  
  //----------------------------------
 
- move_remove_c_cdag(int block_index, int block_size, qmc_data& data, mc_tools::random_generator& rng)
-    : data(data), config(data.config), rng(rng), block_index(block_index), block_size(block_size) {}
+ move_remove_c_cdag(int block_index, int block_size, qmc_data& data, mc_tools::random_generator& rng, double weight_threshold)
+    : data(data), config(data.config), rng(rng), block_index(block_index), block_size(block_size), weight_threshold(weight_threshold) {}
 
  //----------------
  
@@ -102,7 +103,9 @@ class move_remove_c_cdag {
 
   if (!std::isfinite(p)) TRIQS_RUNTIME_ERROR << "(remove) p not finite :" << p;
   if (!std::isfinite(p / t_ratio)) TRIQS_RUNTIME_ERROR << "p / t_ratio not finite p : " << p << " t_ratio :  "<< t_ratio;
-  return p / t_ratio;
+
+  auto weight = p / t_ratio;
+  return (std::abs(weight) >= weight_threshold) ? weight : 0;
  }
 
  //----------------

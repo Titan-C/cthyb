@@ -36,17 +36,19 @@ class move_insert_c_cdag {
  qmc_data::trace_t new_trace;
  time_pt tau1, tau2;
  op_desc op1, op2;
+ double weight_threshold;
 
  public:
  //-----------------------------------------------
 
- move_insert_c_cdag(int block_index, int block_size, qmc_data& data, mc_tools::random_generator& rng, bool record_histograms)
+ move_insert_c_cdag(int block_index, int block_size, qmc_data& data, mc_tools::random_generator& rng, bool record_histograms, double weight_threshold)
     : data(data),
       config(data.config),
       rng(rng),
       block_index(block_index),
       block_size(block_size),
-      record_histograms(record_histograms) {
+      record_histograms(record_histograms),
+      weight_threshold(weight_threshold) {
   if (record_histograms) {
    histos.insert({"shift_length_proposed", {0, config.beta(), 100, "hist_shift_length_proposed.dat"}});
    histos.insert({"shift_length_accepted", {0, config.beta(), 100, "hist_shift_length_accepted.dat"}});
@@ -147,7 +149,9 @@ class move_insert_c_cdag {
 #endif
 
   if (!std::isfinite(p * t_ratio)) TRIQS_RUNTIME_ERROR << "p * t_ratio not finite p : " << p << " t_ratio :  "<< t_ratio;
-  return p * t_ratio;
+
+  auto weight = p * t_ratio;
+  return (std::abs(weight) >= weight_threshold) ? weight : 0;
  }
 
  //----------------
