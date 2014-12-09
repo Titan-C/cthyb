@@ -73,20 +73,6 @@ solver_core::solver_core(double beta_, std::map<std::string, indices_type> const
 
 }
 
-// TODO Move functions below to triqs library
-template<typename F, typename T>
-std::vector<std14::result_of_t<F(T)>> map(F && f, std::vector<T> const & V) {
-  std::vector<std14::result_of_t<F(T)>> res;
-  res.reserve(V.size());
-  for(auto & x : V) res.emplace_back(f(x));
-  return res;
-}
-
-template<typename F, typename G>
-gf<block_index,std14::result_of_t<F(G)>> map(F && f, gf<block_index,G> const & g) {
-  return make_block_gf(map(f, g.data()));
-}
-
 /// -------------------------------------------------------------------------------------------
 
 void solver_core::solve(solve_parameters_t const & params) { 
