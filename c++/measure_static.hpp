@@ -66,35 +66,45 @@ struct measure_static {
   auto corr = real(data.imp_trace.full_trace_over_estimator());
   if (!std::isfinite(corr)) TRIQS_RUNTIME_ERROR << " measure_static :corr not finite" << corr;
 
-  z += s * corr;
-
-  double numerator(0), denominator(0);
+  double numerator = 0, denominator = 0;
+  double beta = data.config.beta();
 
   if(data.imp_trace.is_empty()) { // Empty trace
-   for(auto const& M : observable_matrices) {
-    for(int n = 0; n < first_dim(M.second); ++n) numerator += M.second(n,n);
-   }
-   denominator = full_hs_size;
-  } else {
-   //std::cout << "block_table:" << std::endl;
-   //for(auto const& m: data.imp_trace.get_block_table()) std::cout << m <<'\t';
-   //std::cout << std::endl;
-   //std::cout << "matrices:" << std::endl;
-   //for(auto const& m: data.imp_trace.get_trace_matrices()) std::cout << m <<'\t';
-   //std::cout << std::endl;
-   for(auto const& M : observable_matrices){
-    if(data.imp_trace.get_block_table()[M.first] == -1) continue; // impurity_trace is zero within this block
-    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[M.first];
 
-    auto prod_matrix = trace_matrix * M.second;
-    for(int n = 0; n < first_dim(trace_matrix); ++n){
-     numerator += prod_matrix(n,n);
-     denominator += trace_matrix(n,n);
+   for(auto const& M : observable_matrices) {
+    auto const& eigenvalues = data.sosp.get_eigensystems()[M.first].eigenvalues;
+    for(int n = 0; n < first_dim(M.second); ++n) numerator += M.second(n,n) * exp(-beta * eigenvalues(n));
+   }
+   denominator = data.sosp.partition_function(beta);
+
+  } else {
+
+   time_pt tmin, tmax;
+   std::tie(tmin,tmax) = data.imp_trace.get_tmin_tmax();
+
+   for(auto const& M : observable_matrices){
+
+    if(data.imp_trace.get_block_table()[M.first] == -1) continue; // root of the tree is zero within this block
+    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[M.first];
+    // FIXME: 0-dimensional matrices must be ignored.
+    // The internal logic of the cache allows their appearance, but it seems confusing ...
+    if(first_dim(trace_matrix) == 0) continue;
+
+    auto const& eigenvalues = data.sosp.get_eigensystems()[M.first].eigenvalues;
+    double dtau = beta - tmax + tmin;
+
+    for(int n = 0; n < first_dim(trace_matrix); ++n) {
+     for(int m = 0; m < second_dim(trace_matrix); ++m) {
+      numerator += std::exp(-double(beta-tmax)*eigenvalues(n)) * trace_matrix(n,m) * std::exp(-double(tmin)*eigenvalues(m)) * M.second(m,n);
+     }
+     denominator += trace_matrix(n,n) * std::exp(-dtau * eigenvalues(n));
     }
    }
   }
-
-  result += real(s) * (numerator/denominator) * corr;
+  if(denominator != 0){
+   z += s * corr;
+   result += real(s) * (numerator/denominator) * corr;
+  }
  }
 
  void collect_results(boost::mpi::communicator const& c) {

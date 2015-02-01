@@ -132,16 +132,18 @@ class impurity_trace {
  // ---------- Accessors to cache quantities ----------
  public:
  // is the trace empty?
- bool is_empty() const {
-  return tree.get_root() == nullptr;
- }
+ bool is_empty() const { return tree_size == 0; }
  // accessor to block_table
  std::vector<int> const & get_block_table() const {
-  return tree.get_root()->cache.block_table; 
+  return tree.get_root()->cache.block_table;
  }
  // accessor to trace matrices, needed in measures of static quantities
  std::vector<arrays::matrix<double>> const & get_trace_matrices() const {
-  return tree.get_root()->cache.matrices; 
+  return tree.get_root()->cache.matrices;
+ }
+ // Minimal and maximal tau-points in the trace
+ std::pair<time_pt,time_pt> get_tmin_tmax() {
+  return {tree.max_key(), tree.min_key()}; // The tree is in REVERSE order
  }
 
  public:

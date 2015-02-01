@@ -17,6 +17,8 @@ module.add_include("../c++/solver_core.hpp")
 module.add_preamble("""
 #include <triqs/python_tools/converters/map.hpp>
 #include <triqs/python_tools/converters/vector.hpp>
+#include <triqs/python_tools/converters/pair.hpp>
+#include <triqs/python_tools/converters/variant.hpp>
 using namespace triqs::gfs;
 using triqs::utility::many_body_operator;
 using namespace cthyb;

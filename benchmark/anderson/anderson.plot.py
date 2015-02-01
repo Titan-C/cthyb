@@ -4,7 +4,6 @@ from pytriqs.archive import *
 from pytriqs.gf.local import *
 from pytriqs.plot.mpl_interface import plt, oplot
 from matplotlib.backends.backend_pdf import PdfPages
-from pytriqs.applications.impurity_solvers.cthyb import change_mesh
 
 # import parameters from cwd
 from os import getcwd
@@ -47,7 +46,7 @@ for plot_objs in objects_to_plot:
             for spin in params.spin_names:
                 bn, i = params.mkind(spin)
 
-                GF = arch[bn] if name=="ED" else change_mesh(arch[bn],500)
+                GF = arch[bn] if name=="ED" else rebinning_tau(arch[bn],500)
                 oplot(GF[i,i], name=name + "," + {'up':"$\uparrow\uparrow$",'dn':"$\downarrow\downarrow$"}[spin])
 
         setup_fig()
