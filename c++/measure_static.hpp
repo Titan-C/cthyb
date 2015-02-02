@@ -39,22 +39,22 @@ struct measure_static {
 
  qmc_data const& data;
  double & result;
- std::vector<std::pair<long,matrix<double>>> observable_matrices;   // pairs (subspace number,matrix elements)
+ std::vector<matrix<double>> observable_matrices;   // pairs (subspace number,matrix elements)
  mc_sign_type z;
  int64_t num;
  int full_hs_size;
 
  measure_static(triqs::utility::many_body_operator<double> const& observable, double & result,
                 qmc_data const& data, fundamental_operator_set const& fops) :
- result(result), data(data), z(0), num(0), full_hs_size(data.sosp.space().size())
+ result(result), data(data), z(0), num(0), full_hs_size(data.sosp.space().size()),
+ observable_matrices(data.sosp.n_subspaces())
  {
-  observable_matrices.reserve(data.sosp.n_subspaces());
   imperative_operator<hilbert_space> op(observable,fops);
 
   // Iterate over all subspaces;
   for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
     auto M = data.sosp.make_op_matrix(op,spn,spn);
-    if(M.second>0) observable_matrices.emplace_back(spn,M.first); // At least one non-zero element in this subspace
+    if(M.second>0) observable_matrices[spn] = M.first; // At least one non-zero element in this subspace
   }
  }
 
@@ -71,9 +71,13 @@ struct measure_static {
 
   if(data.imp_trace.is_empty()) { // Empty trace
 
-   for(auto const& M : observable_matrices) {
-    auto const& eigenvalues = data.sosp.get_eigensystems()[M.first].eigenvalues;
-    for(int n = 0; n < first_dim(M.second); ++n) numerator += M.second(n,n) * exp(-beta * eigenvalues(n));
+   for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
+     auto const& M = observable_matrices[spn];
+
+     if(first_dim(M) == 0) continue;
+
+     auto const& eigenvalues = data.sosp.get_eigensystems()[spn].eigenvalues;
+     for(int n = 0; n < first_dim(M); ++n) numerator += M(n,n) * exp(-beta * eigenvalues(n));
    }
    denominator = data.sosp.partition_function(beta);
 
@@ -82,26 +86,31 @@ struct measure_static {
    time_pt tmin, tmax;
    std::tie(tmin,tmax) = data.imp_trace.get_tmin_tmax();
 
-   for(auto const& M : observable_matrices){
+   for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
+    if(data.imp_trace.get_block_table()[spn] == -1) continue; // root of the tree is zero within this block
 
-    if(data.imp_trace.get_block_table()[M.first] == -1) continue; // root of the tree is zero within this block
-    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[M.first];
+    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[spn];
     // FIXME: 0-dimensional matrices must be ignored.
     // The internal logic of the cache allows their appearance, but it seems confusing ...
     if(first_dim(trace_matrix) == 0) continue;
 
-    auto const& eigenvalues = data.sosp.get_eigensystems()[M.first].eigenvalues;
+    auto const& eigenvalues = data.sosp.get_eigensystems()[spn].eigenvalues;
     double dtau = beta - tmax + tmin;
+    for(int n = 0; n < first_dim(trace_matrix); ++n)
+     denominator += trace_matrix(n,n) * std::exp(-dtau * eigenvalues(n));
+
+    auto const& M = observable_matrices[spn];
+    if(first_dim(M) == 0) continue;
 
     for(int n = 0; n < first_dim(trace_matrix); ++n) {
      for(int m = 0; m < second_dim(trace_matrix); ++m) {
-      numerator += std::exp(-double(beta-tmax)*eigenvalues(n)) * trace_matrix(n,m) * std::exp(-double(tmin)*eigenvalues(m)) * M.second(m,n);
+      numerator += std::exp(-double(beta-tmax)*eigenvalues(n)) * trace_matrix(n,m) * std::exp(-double(tmin)*eigenvalues(m)) * M(m,n);
      }
-     denominator += trace_matrix(n,n) * std::exp(-dtau * eigenvalues(n));
     }
    }
   }
-  if(denominator != 0){
+
+  if(denominator !=0 ){
    z += s * corr;
    result += real(s) * (numerator/denominator) * corr;
   }
