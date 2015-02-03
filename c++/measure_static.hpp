@@ -66,6 +66,8 @@ struct measure_static {
   auto corr = real(data.imp_trace.full_trace_over_estimator());
   if (!std::isfinite(corr)) TRIQS_RUNTIME_ERROR << " measure_static :corr not finite" << corr;
 
+  z += s * corr;
+
   double numerator = 0, denominator = 0;
   double beta = data.config.beta();
 
@@ -82,38 +84,31 @@ struct measure_static {
    denominator = data.sosp.partition_function(beta);
 
   } else {
+   std::cout << data.imp_trace.get_root_matrices().size() << std::endl;
 
    time_pt tmin, tmax;
    std::tie(tmin,tmax) = data.imp_trace.get_tmin_tmax();
 
-   for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
-    if(data.imp_trace.get_block_table()[spn] == -1) continue; // root of the tree is zero within this block
+   for(auto const& trace_matrix : data.imp_trace.get_root_matrices()){
 
-    auto const& trace_matrix = data.imp_trace.get_trace_matrices()[spn];
-    // FIXME: 0-dimensional matrices must be ignored.
-    // The internal logic of the cache allows their appearance, but it seems confusing ...
-    if(first_dim(trace_matrix) == 0) continue;
-
+    int spn = trace_matrix.first;
     auto const& eigenvalues = data.sosp.get_eigensystems()[spn].eigenvalues;
     double dtau = beta - tmax + tmin;
-    for(int n = 0; n < first_dim(trace_matrix); ++n)
-     denominator += trace_matrix(n,n) * std::exp(-dtau * eigenvalues(n));
 
+    for(int n = 0; n < first_dim(trace_matrix.second); ++n)
+     denominator += trace_matrix.second(n,n) * std::exp(-dtau * eigenvalues(n));
     auto const& M = observable_matrices[spn];
     if(first_dim(M) == 0) continue;
 
-    for(int n = 0; n < first_dim(trace_matrix); ++n) {
-     for(int m = 0; m < second_dim(trace_matrix); ++m) {
-      numerator += std::exp(-double(beta-tmax)*eigenvalues(n)) * trace_matrix(n,m) * std::exp(-double(tmin)*eigenvalues(m)) * M(m,n);
+    for(int n = 0; n < first_dim(trace_matrix.second); ++n) {
+     for(int m = 0; m < second_dim(trace_matrix.second); ++m) {
+      numerator += std::exp(-double(beta-tmax)*eigenvalues(n)) * trace_matrix.second(n,m) * std::exp(-double(tmin)*eigenvalues(m)) * M(m,n);
      }
     }
    }
   }
 
-  if(denominator !=0 ){
-   z += s * corr;
-   result += real(s) * (numerator/denominator) * corr;
-  }
+  result += real(s) * (numerator/denominator) * corr;
  }
 
  void collect_results(boost::mpi::communicator const& c) {

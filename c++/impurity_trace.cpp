@@ -49,6 +49,8 @@ impurity_trace::impurity_trace(configuration& c, sorted_spaces const& sosp_, sol
  else
   method = method_t::full_trace;
 
+ root_matrices.reserve(n_blocks);
+
  if (histo) {
   for (int i = 0; i < n_orbitals; ++i) histo->opcount.emplace_back(100, "histo_opcount" + std::to_string(i) + ".dat");
  }
@@ -311,6 +313,8 @@ impurity_trace::trace_t impurity_trace::compute_trace(bool to_machine_precision,
  for (int i = n_bl - 1; i >= 0; --i)
  bound_cumul[i] = bound_cumul[i + 1] + std::exp(-to_sort[i].first) * get_block_dim(to_sort[i].second);
 
+ root_matrices.clear();
+
  int bl;
  for (bl = 0; bl < n_bl; ++bl) { // sum over all blocks
 
@@ -332,7 +336,9 @@ impurity_trace::trace_t impurity_trace::compute_trace(bool to_machine_precision,
   }
 
   // computes the matrices, recursively along the modified path in the tree
-  auto b_mat = compute_matrix(root, block_index);
+  root_matrices.emplace_back(compute_matrix(root, block_index));
+  auto const& b_mat = root_matrices.back();
+
   if (b_mat.first == -1) TRIQS_RUNTIME_ERROR << " Internal error : B = -1 after compute matrix : " << block_index;
 
 #ifdef CHECK_AGAINST_LINEAR_COMPUTATION
