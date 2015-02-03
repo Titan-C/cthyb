@@ -10,7 +10,7 @@ def mkind(spin):
 beta = 10.0
 U = 2.0
 mu = 1.0
-h = 0.0
+h = 0.1
 V = 1.0
 epsilon = 2.3
 
