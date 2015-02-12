@@ -88,8 +88,6 @@ class impurity_trace {
 #endif
  rb_tree_t tree;       // the red black tree and its nodes
 
- std::vector<std::pair<int,arrays::matrix<double>>> root_matrices; // matrices at the root node
-
  // ---------------- Cache machinery ----------------
  void update_cache();
 
@@ -133,6 +131,7 @@ class impurity_trace {
 
  // ---------- Accessors to cache quantities ----------
  public:
+ /*
  // is the trace empty?
  bool is_empty() const { return tree_size == 0; }
  // accessor to trace matrices, needed in measures of static quantities
@@ -142,7 +141,7 @@ class impurity_trace {
  // Minimal and maximal tau-points in the trace
  std::pair<time_pt,time_pt> get_tmin_tmax() const {
   return {tree.max_key(), tree.min_key()}; // The tree is in REVERSE order
- }
+ }*/
 
  public:
  /*************************************************************************

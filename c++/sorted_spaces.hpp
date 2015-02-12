@@ -25,6 +25,7 @@
 #include <vector>
 #include <map>
 #include <triqs/hilbert_space/state.hpp>
+#include <triqs/hilbert_space/imperative_operator.hpp>
 
 namespace cthyb {
 

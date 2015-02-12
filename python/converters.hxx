@@ -84,12 +84,11 @@ template <> struct py_converter<solve_parameters_t> {
   if (!PyDict_Check(dic)) { 
    if (raise_exception) { PyErr_SetString(PyExc_TypeError, "Not a python dict");}
    return false;
-  }
+  }  
   std::stringstream fs, fs2; int err=0;
 
 #ifndef TRIQS_ALLOW_UNUSED_PARAMETERS
-  std::vector<std::string> ks, all_keys = {"h_loc","n_cycles","partition_method","quantum_numbers","length_cycle","n_warmup_cycles","random_seed","random_name","max_time","verbosity","move_shift","use_trace_estimator","measure_g_tau","measure_g_l","measure_pert_order","make_histograms","proposal_prob"};
-  std::vector<std::string> ks, all_keys = {"h_loc","n_cycles","partition_method","quantum_numbers","length_cycle","n_warmup_cycles","random_seed","random_name","max_time","verbosity","move_shift","use_trace_estimator","measure_g_tau","measure_g_l","measure_pert_order","make_histograms","static_observables"};
+  std::vector<std::string> ks, all_keys = {"h_loc","n_cycles","partition_method","quantum_numbers","length_cycle","n_warmup_cycles","random_seed","random_name","max_time","verbosity","move_shift","use_trace_estimator","measure_g_tau","measure_g_l","measure_pert_order","make_histograms","proposal_prob","static_observables"};
   pyref keys = PyDict_Keys(dic);
   if (!convertible_from_python<std::vector<std::string>>(keys, true)) {
    fs << "\nThe dict keys are not strings";
@@ -121,7 +120,7 @@ template <> struct py_converter<solve_parameters_t> {
   _check_optional <std::map<std::string, real_operator_t>>(dic, fs, err, "static_observables" , "std::map<std::string, real_operator_t>");
   if (err) goto _error;
   return true;
-
+  
  _error: 
    fs2 << "\n---- There " << (err > 1 ? "are " : "is ") << err<< " error"<<(err >1 ?"s" : "")<< " in Python -> C++ transcription for the class solve_parameters_t\n" <<fs.str();
    if (raise_exception) PyErr_SetString(PyExc_TypeError, fs2.str().c_str());

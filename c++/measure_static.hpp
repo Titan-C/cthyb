@@ -26,7 +26,7 @@
 #include <boost/mpi/collectives.hpp>
 
 #include <triqs/operators/many_body_operator.hpp>
-#include "./triqs/draft/hilbert_space_tools/fundamental_operator_set.hpp"
+#include <triqs/hilbert_space/fundamental_operator_set.hpp>
 #include "./sorted_spaces.hpp"
 
 namespace cthyb {
@@ -45,11 +45,11 @@ struct measure_static {
  int full_hs_size;
 
  measure_static(triqs::utility::many_body_operator<double> const& observable, double & result,
-                qmc_data const& data, fundamental_operator_set const& fops) :
+                qmc_data const& data, triqs::hilbert_space::fundamental_operator_set const& fops) :
  result(result), data(data), z(0), num(0), full_hs_size(data.sosp.space().size()),
  observable_matrices(data.sosp.n_subspaces())
  {
-  imperative_operator<hilbert_space> op(observable,fops);
+  imperative_operator<triqs::hilbert_space::hilbert_space> op(observable,fops);
 
   // Iterate over all subspaces;
   for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
@@ -70,7 +70,7 @@ struct measure_static {
 
   double numerator = 0, denominator = 0;
   double beta = data.config.beta();
-
+/*
   if(data.imp_trace.is_empty()) { // Empty trace
 
    for(long spn = 0; spn < data.sosp.n_subspaces(); ++spn){
@@ -84,7 +84,6 @@ struct measure_static {
    denominator = data.sosp.partition_function(beta);
 
   } else {
-   std::cout << data.imp_trace.get_root_matrices().size() << std::endl;
 
    time_pt tmin, tmax;
    std::tie(tmin,tmax) = data.imp_trace.get_tmin_tmax();
@@ -106,7 +105,7 @@ struct measure_static {
      }
     }
    }
-  }
+  }*/
 
   result += real(s) * (numerator/denominator) * corr;
  }

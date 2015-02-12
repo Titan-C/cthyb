@@ -20,11 +20,7 @@
  ******************************************************************************/
 #include "sorted_spaces.hpp"
 #include <triqs/arrays/linalg/eigenelements.hpp>
-<<<<<<< HEAD
 #include <triqs/hilbert_space/space_partition.hpp>
-#include <triqs/hilbert_space/imperative_operator.hpp>
-=======
->>>>>>> New method sorted_spaces::make_op_matrix()
 
 using namespace triqs::arrays;
 using namespace triqs::hilbert_space;
@@ -37,12 +33,7 @@ namespace cthyb {
 
 void sorted_spaces::autopartition(fundamental_operator_set const& fops, many_body_op_t const& h) {
 
-<<<<<<< HEAD
  imperative_operator<hilbert_space, double, false> hamiltonian(h, fops);
- hilbert_space full_hs(fops);
-=======
- imperative_operator<hilbert_space, false> hamiltonian(h, fops);
->>>>>>> New method sorted_spaces::make_op_matrix()
  state<hilbert_space, double, true> st(full_hs);
 
  using space_partition_t = space_partition<state<hilbert_space, double, true>, imperative_operator<hilbert_space, double, false>>;

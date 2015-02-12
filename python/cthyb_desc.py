@@ -15,9 +15,9 @@ module.add_include("../c++/solver_core.hpp")
 
 # Add here anything to add in the C++ code at the start, e.g. namespace using
 module.add_preamble("""
+#include <triqs/python_tools/converters/pair.hpp>
 #include <triqs/python_tools/converters/map.hpp>
 #include <triqs/python_tools/converters/vector.hpp>
-#include <triqs/python_tools/converters/pair.hpp>
 #include <triqs/python_tools/converters/variant.hpp>
 using namespace triqs::gfs;
 using triqs::utility::many_body_operator;
@@ -34,8 +34,7 @@ c = class_(
 c.add_constructor("""(double beta, std::map<std::string,indices_type> gf_struct, int n_iw = 1025, int n_tau = 10001, int n_l = 50)""", 
                   doc = """ """)
 
-<<<<<<< HEAD
-c.add_method("""void solve (**cthyb::solve_parameters_t)""",
+c.add_method("""void solve (**cthyb::solve_parameters_t)""", 
              doc = """  Parameter Name      Type                                   Default                                        Documentation
 
   h_loc               real_operator_t                        --                                             Atomic Hamiltonian
@@ -53,9 +52,9 @@ c.add_method("""void solve (**cthyb::solve_parameters_t)""",
   measure_g_tau       bool                                   true                                           Measure G(tau)?
   measure_g_l         bool                                   false                                          Measure G_l (Legendre)?
   measure_pert_order  bool                                   false                                          Measure perturbation order?
-  make_histograms     bool                                   false                                                   Make histograms of the trace computation?
-  proposal_prob       std::map<std::string, double>          (std::map<std::string,double>{})               Operator insertion/removal probabilities for different blocks 
-  static_observables  std::map<std::string, real_operator_t> (std::map<std::string,real_operator_t>{})      List of static observables to be measured (with their names) """)
+  make_histograms     bool                                   false                                          Make histograms of the trace computation?
+  proposal_prob       std::map<std::string, double>          (std::map<std::string,double>{})               Operator insertion/removal probabilities for different blocks
+  static_observables  std::map<std::string, real_operator_t> (std::map<std::string,real_operator_t>{})      List of static observables to be measured (with their names)  """)
 
 c.add_property(name = "last_solve_parameters",
                getter = cfunction("cthyb::solve_parameters_t get_last_solve_parameters ()"),
@@ -73,11 +72,11 @@ c.add_property(name = "G_tau",
                getter = cfunction("block_gf_view<imtime> G_tau ()"),
                doc = """G(tau) in imaginary time """)
 
-c.add_property(name = "G_l", 
+c.add_property(name = "G_l",
                getter = cfunction("block_gf_view<legendre> G_l ()"),
                doc = """G_l in Legendre polynomials representation """)
 
-c.add_property(name = "static_observables", 
+c.add_property(name = "static_observables",
                getter = cfunction("std::map<std::string,double> static_observables ()"),
                doc = """Accumulated static observable with a given name """)
 
@@ -89,7 +88,7 @@ c.add_property(name = "average_sign",
                getter = cfunction("mc_sign_type average_sign ()"),
                doc = """Monte Carlo average sign """)
 
-c.add_property(name = "eigensystems", 
+c.add_property(name = "eigensystems",
                getter = cfunction("std::vector<std::pair<vector<double>,matrix<double>>> get_eigensystems ()"),
                doc = """Eigensystems of the atomic problem
   Returns a list of pairs (E,U), where H = U * diag(E) * U^+ (for each subspace) """)
