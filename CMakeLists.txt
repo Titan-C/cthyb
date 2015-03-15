@@ -54,6 +54,7 @@ if (${TRIQS_WITH_PYTHON_SUPPORT})
      message("Error: TRIQS library has not been compiled with its documentation")
    endif()
    add_subdirectory(doc)
+   add_subdirectory(doc_new)
  endif(${BUILD_DOC})
 endif()
 
