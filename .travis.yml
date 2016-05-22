@@ -44,7 +44,7 @@ before_install:
     - ./miniconda.sh -b
     - export PATH=$HOME/miniconda3/bin:$PATH
     - conda update --yes conda
-    - conda create --yes -n testenv python=2.7 numpy scipy matplotlib tornado pyzmq cython h5py pip
+    - conda create --yes -n testenv python=2.7 nomkl numpy scipy matplotlib tornado pyzmq cython h5py pip
     - source activate testenv
     - pip install mako mpi4py
     - wget https://s3-us-west-2.amazonaws.com/buildbin/triqs_$CC.tar.bz2
