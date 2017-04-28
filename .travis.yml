@@ -1,17 +1,13 @@
 sudo: required
 dist: trusty
 language: cpp
-compiler:
-    - gcc
-    - clang
+
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     - boost-latest
     packages:
-    - gcc-5
-    - g++-5
     - cmake
     - libgfortran3
     - gfortran
@@ -23,6 +19,22 @@ addons:
     - libgmp-dev
     - libhdf5-serial-dev
     - libboost1.55-all-dev
+    - gcc-5
+    - g++-5
+    - gcc-6
+    - g++-6
+
+matrix:
+  include:
+    - compiler: gcc
+      env:
+        - COMPILERXX=g++-5
+        - COMPILER=gcc-5
+    - compiler: gcc
+      env:
+        - COMPILERXX=g++-6
+        - COMPILER=gcc-6
+
 deploy:
   provider: s3
   access_key_id: $AWS_A_KEY
@@ -36,8 +48,8 @@ deploy:
     branch: travis
 
 before_install:
-    - if [ "$CXX" == "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-
+    - export CXX=$COMPILERXX CC=$COMPILER
+    - env
     #Set anaconda python environment
     - cd $HOME
     - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
